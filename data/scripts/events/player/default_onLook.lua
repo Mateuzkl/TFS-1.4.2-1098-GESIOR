@@ -4,8 +4,9 @@ event.onLook = function(self, thing, position, distance, description)
 	
 	-- Look KILL AND DEATH -- 
 	if thing:isPlayer() and not thing:getGroup():getAccess() then
-		local kills = thing:getTotalSavedKills()
-		local deaths = thing:getTotalSavedDeaths()
+		-- Using storage values for kills and deaths (you can set these up in your server)
+		local kills = thing:getStorageValue(30001) or 0  -- Storage for player kills
+		local deaths = thing:getStorageValue(30002) or 0  -- Storage for player deaths
 		local kdr
 
 		if deaths == 0 then
@@ -22,9 +23,9 @@ event.onLook = function(self, thing, position, distance, description)
     end
 	
 	-- Rank Task --
-	if thing:isPlayer() and not thing:getGroup():getAccess() then
-		description = string.format("%s\nTask Rank: "..getRankTask(thing)..".", description)
-	end
+	-- if thing:isPlayer() and not thing:getGroup():getAccess() then
+	-- 	description = string.format("%s\nTask Rank: "..getRankTask(thing)..".", description)
+	-- end
 	
 	-- Guild Level --
 	if thing:isPlayer() and not thing:getGroup():getAccess() then
@@ -42,16 +43,16 @@ event.onLook = function(self, thing, position, distance, description)
         exp = exp * Game.getExperienceStage(self:getLevel()) -- apply experience stage multiplier
         if configManager.getBoolean(configKeys.STAMINA_SYSTEM) then -- check if stamina system is active on the server
             local staminaMinutes = self:getStamina()
-            if staminaMinutes > 2340 and self:getStorageValue(Storage.isCasting) == 1 then -- 'happy hour' check
+            if staminaMinutes > 2340 and self:getStorageValue(30003) == 1 then -- 'happy hour' check (Storage for isCasting)
                 exp = exp * 1.65
-			elseif staminaMinutes > 2340 and self:getStorageValue(Storage.isCasting) == -1 then
+			elseif staminaMinutes > 2340 and self:getStorageValue(30003) == -1 then
 				exp = exp * 1.5
-            elseif staminaMinutes <= 840 and self:getStorageValue(Storage.isCasting) == 1 then -- low stamina check
+            elseif staminaMinutes <= 840 and self:getStorageValue(30003) == 1 then -- low stamina check
                 exp = exp * 0.8
-			elseif staminaMinutes <= 840 and self:getStorageValue(Storage.isCasting) == -1 then
+			elseif staminaMinutes <= 840 and self:getStorageValue(30003) == -1 then
 				exp = exp * 0.5
 			-- Doble Exp	
-			elseif staminaMinutes > 2340 and self:getStorageValue(Storage.STORAGEVALUE_POTIONXP_TEMPO) > 1 then
+			elseif staminaMinutes > 2340 and self:getStorageValue(30004) > 1 then -- Storage for potion XP
 				exp = exp * 1.5
             end
         end

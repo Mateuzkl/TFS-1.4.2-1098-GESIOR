@@ -4,9 +4,10 @@ event.onLookInBattleList = function(self, creature, distance)
 	self:sendTextMessage(MESSAGE_INFO_DESCR, description)
 	
 	-- Look KILL AND DEATH -- 
-	if thing:isPlayer() and not thing:getGroup():getAccess() then
-		local kills = thing:getTotalSavedKills()
-		local deaths = thing:getTotalSavedDeaths()
+	if creature:isPlayer() and not creature:getGroup():getAccess() then
+		-- Using storage values for kills and deaths (you can set these up in your server)
+		local kills = creature:getStorageValue(30001) or 0  -- Storage for player kills
+		local deaths = creature:getStorageValue(30002) or 0  -- Storage for player deaths
 		local kdr
 
 		if deaths == 0 then
@@ -18,27 +19,27 @@ event.onLookInBattleList = function(self, creature, distance)
 	end
 	
 	-- Look Show Health Monster in Percentage --
-	if thing:isCreature() and thing:isMonster() then
-		description = "".. description .."\nHealth: ["..math.floor((thing:getHealth() / thing:getMaxHealth()) * 100).."%]"
+	if creature:isCreature() and creature:isMonster() then
+		description = "".. description .."\nHealth: ["..math.floor((creature:getHealth() / creature:getMaxHealth()) * 100).."%]"
 		self:sendTextMessage(MESSAGE_INFO_DESCR, description)
     end
 	
 	-- Look Experience Monsters --
-	if thing:isCreature() and thing:isMonster() then
-        local exp = thing:getType():getExperience() -- get monster experience
+	if creature:isCreature() and creature:isMonster() then
+        local exp = creature:getType():getExperience() -- get monster experience
         exp = exp * Game.getExperienceStage(self:getLevel()) -- apply experience stage multiplier
         if configManager.getBoolean(configKeys.STAMINA_SYSTEM) then -- check if stamina system is active on the server
             local staminaMinutes = self:getStamina()
-            if staminaMinutes > 2340 and self:getStorageValue(Storage.isCasting) == 1 then -- 'happy hour' check
+            if staminaMinutes > 2340 and self:getStorageValue(30003) == 1 then -- 'happy hour' check (Storage for isCasting)
                 exp = exp * 1.65
-			elseif staminaMinutes > 2340 and self:getStorageValue(Storage.isCasting) == -1 then
+			elseif staminaMinutes > 2340 and self:getStorageValue(30003) == -1 then
 				exp = exp * 1.5
-            elseif staminaMinutes <= 840 and self:getStorageValue(Storage.isCasting) == 1 then -- low stamina check
+            elseif staminaMinutes <= 840 and self:getStorageValue(30003) == 1 then -- low stamina check
                 exp = exp * 0.8
-			elseif staminaMinutes <= 840 and self:getStorageValue(Storage.isCasting) == -1 then
+			elseif staminaMinutes <= 840 and self:getStorageValue(30003) == -1 then
 				exp = exp * 0.5
 			-- Doble Exp	
-			elseif staminaMinutes > 2340 and self:getStorageValue(Storage.STORAGEVALUE_POTIONXP_TEMPO) > 1 then
+			elseif staminaMinutes > 2340 and self:getStorageValue(30004) > 1 then -- Storage for potion XP
 				exp = exp * 1.5
             end
         end
@@ -46,17 +47,17 @@ event.onLookInBattleList = function(self, creature, distance)
 	end
 	
 	-- Look Shop NPC -- 
-	if (thing:isCreature() and thing:isNpc() and distance <= 3) then
-		local description = "Are you talking to " .. thing:getDescription(distance)
-		self:say("hi", TALKTYPE_PRIVATE_PN, false, thing)
-		self:say("trade", TALKTYPE_PRIVATE_PN, false, thing)
+	if (creature:isCreature() and creature:isNpc() and distance <= 3) then
+		local description = "Are you talking to " .. creature:getDescription(distance)
+		self:say("hi", TALKTYPE_PRIVATE_PN, false, creature)
+		self:say("trade", TALKTYPE_PRIVATE_PN, false, creature)
 		self:sendTextMessage(MESSAGE_INFO_DESCR, description)
 		return false
 	end
 	
 	-- Look Inspecting -- 
-	if thing:isPlayer() and not self:getGroup():getAccess() then
-        thing:sendTextMessage(MESSAGE_STATUS_DEFAULT,"The player [".. self:getName() .. '] looking at you.')
+	if creature:isPlayer() and not self:getGroup():getAccess() then
+        creature:sendTextMessage(MESSAGE_STATUS_DEFAULT,"The player [".. self:getName() .. '] looking at you.')
     end
 	
 	if self:getGroup():getAccess() then
@@ -73,11 +74,11 @@ event.onLookInBattleList = function(self, creature, distance)
 		)
 
 		if creature:isPlayer() then
-			description = string.format("%s\nIP: %s.", description, thing:getIp())
+			description = string.format("%s\nIP: %s.", description, creature:getIp())
 		end
 	end
 	-- Look Position -- 
-		local position = thing:getPosition()
+		local position = creature:getPosition()
 		description = string.format(
 			"%s\nPosition: [X: %d], [Y: %d], [Z: %d].",
 			description, position.x, position.y, position.z
