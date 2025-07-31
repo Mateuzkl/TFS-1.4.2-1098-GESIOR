@@ -46,8 +46,9 @@ event.onGainExperience = function(self, source, exp, rawExp, sendText)
 	
 	-- Monster Level --
 	if source:isMonster() then
-        local bonusExperience = source:getMonsterLevel() * 0.03
-        if source:getMonsterLevel() > 0 and bonusExperience > 1 then
+        local monsterExp = source:getType():getExperience()
+        local bonusExperience = math.floor(monsterExp / 100) * 0.03
+        if bonusExperience > 0 and bonusExperience > 1 then
             exp = exp * bonusExperience
         end
     end
