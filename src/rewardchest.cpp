@@ -19,6 +19,13 @@ ReturnValue RewardChest::queryAdd(int32_t, const Thing&, uint32_t, uint32_t, Cre
 
 void RewardChest::postAddNotification(Thing* thing, const Cylinder* oldParent, int32_t index, cylinderlink_t)
 {
+	if (Item* item = thing->getItem()) {
+		if (item->isStackable()) {
+			item->removeAttribute(ITEM_ATTRIBUTE_DATE);
+			item->removeAttribute(ITEM_ATTRIBUTE_REWARDID);
+		}
+	}
+	
 	if (parent != nullptr) {
 		parent->postAddNotification(thing, oldParent, index, LINK_PARENT);
 	}

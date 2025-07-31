@@ -722,6 +722,11 @@ void Container::internalAddThing(uint32_t, Thing* thing)
 		return;
 	}
 
+	if (getID() == ITEM_REWARD_CONTAINER && item->isStackable()) {
+		item->removeAttribute(ITEM_ATTRIBUTE_DATE);
+		item->removeAttribute(ITEM_ATTRIBUTE_REWARDID);
+	}
+
 	item->setParent(this);
 	itemlist.push_front(item);
 	updateItemWeight(item->getWeight());
